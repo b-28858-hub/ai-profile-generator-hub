@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 1: Multi-Template Enterprise Profile Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* --- MULTI-TEMPLATE ROOT VARIABLES --- */
+        /* 1. Professional Mode (Default) */
+        .tmpl-prof {
+            --theme-color: #6366f1;
+            --theme-glow: rgba(99, 102, 241, 0.3);
+            --card-bg: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #fff;
+            --text-sub: #94a3b8;
+            --font-family: 'Segoe UI', Roboto, sans-serif;
+            --shadow: 0 10px 30px rgba(0,0,0,0.3);
+            --border-radius: 12px;
+            --avatar-radius: 12px;
+            --badge-bg: rgba(255,255,255,0.06);
+            --badge-border: transparent;
+        }
+
+        /* 2. Cyberpunk Mode */
+        .tmpl-cyber {
+            --theme-color: #00ffcc;
+            --theme-glow: rgba(0, 255, 204, 0.6);
+            --card-bg: #05050a;
+            --card-border: 2px solid #00ffcc;
+            --text-main: #00ffcc;
+            --text-sub: #ff007f;
+            --font-family: 'Courier New', Courier, monospace;
+            --shadow: 0 0 20px rgba(0, 255, 204, 0.4), inset 0 0 15px rgba(0,255,204,0.1);
+            --border-radius: 0px;
+            --avatar-radius: 50%;
+            --badge-bg: rgba(255, 0, 127, 0.1);
+            --badge-border: 1px solid #ff007f;
+        }
+
+        /* 3. Minimalist Light Mode */
+        .tmpl-minimal {
+            --theme-color: #111827;
+            --theme-glow: rgba(17, 24, 39, 0.1);
+            --card-bg: #ffffff;
+            --card-border: 1px solid #e5e7eb;
+            --text-main: #111827;
+            --text-sub: #4b5563;
+            --font-family: 'Inter', system-ui, sans-serif;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --border-radius: 24px;
+            --avatar-radius: 50%;
+            --badge-bg: #f3f4f6;
+            --badge-border: 1px solid #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: all 0.2s ease; }
+
+        body {
+            background: linear-gradient(135deg, #020617, #0f172a); color: #f1f5f9;
+            min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 40px 20px;
+        }
+
+        .container {
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 35px; border-radius: 24px; width: 100%; max-width: 1200px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px;
+        }
+
+        @media (max-width: 950px) { .container { grid-template-columns: 1fr; padding: 20px; } }
+
+        h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; color: #fff; border-left: 4px solid #6366f1; padding-left: 10px; }
+
+        .form-section { display: flex; flex-direction: column; gap: 15px; max-height: 85vh; overflow-y: auto; padding-right: 10px; }
+        .form-section::-webkit-scrollbar { width: 6px; }
+        .form-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 6px; position: relative; }
+        label { font-size: 0.8rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input, textarea, select {
+            background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 14px; border-radius: 10px; color: white; font-size: 0.9rem; outline: none;
+        }
+        input:focus, textarea:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 10px rgba(99, 102, 241, 0.3); background: rgba(30, 41, 59, 0.8); }
+        
+        .check-wrap { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 0.85rem; color: #94a3b8; }
+        .check-wrap input { width: auto; cursor: pointer; }
+
+        .image-ai-block { display: flex; gap: 15px; align-items: center; }
+        .file-input { display: none; }
+        .image-upload-btn {
+            background: #1e293b; color: #f1f5f9; padding: 10px 14px; border-radius: 8px; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem;
+        }
+        .ai-gen-btn {
+            background: #6366f1; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer;
+            border: none; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px;
+        }
+
+        .suggestions-box {
+            position: absolute; top: 100%; left: 0; width: 100%; background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; max-height: 150px;
+            overflow-y: auto; z-index: 100; display: none; margin-top: 5px;
+        }
+        .suggestion-item { padding: 8px 14px; color: #e2e8f0; cursor: pointer; font-size: 0.85rem; }
+        .suggestion-item:hover { background: #6366f1; color: white; }
+
+        /* Template Picker Engine Buttons */
+        .template-picker { display: flex; gap: 10px; }
+        .template-btn {
+            flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer; font-size: 0.8rem; text-align: center; color: #f1f5f9; font-weight: 600;
+            background: rgba(30, 41, 59, 0.5);
+        }
+        .template-btn.active {
+            background: #6366f1; border-color: #fff; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        }
+
+        /* --- Preview Card Display Design --- */
+        .preview-section { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        
+        .profile-card {
+            font-family: var(--font-family); background: var(--card-bg); 
+            border: var(--card-border); padding: 30px;
+            border-radius: var(--border-radius); width: 100%; position: relative; overflow: hidden;
+            box-shadow: var(--shadow); backdrop-filter: blur(10px);
+        }
+
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .card-avatar {
+            width: 75px; height: 75px; border-radius: var(--avatar-radius); object-fit: cover;
+            border: 2px solid var(--theme-color); background: rgba(255,255,255,0.05);
+        }
+
+        .card-name { font-size: 1.6rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+        .card-role { font-size: 0.9rem; color: var(--theme-color); font-weight: 600; text-transform: uppercase; }
+
+        .card-meta-grid { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; 
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.8rem;
+        }
+        .meta-item { display: flex; align-items: center; gap: 8px; color: var(--text-sub); }
+        .meta-item i { color: var(--theme-color); width: 14px; }
+
+        .card-bio { font-size: 0.9rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 15px; word-break: break-word; }
+        
+        .card-timeline {
+            border-left: 2px dashed var(--theme-color); padding-left: 15px; margin-left: 5px; margin-bottom: 20px;
+        }
+        .timeline-comp { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+        .timeline-exp-level { font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 4px; color: var(--theme-color); font-weight: 600; display: inline-block; margin-top: 3px;}
+        .timeline-dates { font-size: 0.8rem; color: var(--text-sub); margin-top: 4px; font-style: italic; }
+        .timeline-duration { font-size: 0.75rem; color: var(--theme-color); font-weight: bold; margin-top: 2px; }
+
+        .skills-container { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px;}
+        .skill-tag {
+            background: var(--badge-bg); border: var(--badge-border);
+            padding: 5px 12px; border-radius: 4px; font-size: 0.75rem; color: var(--text-main); font-weight: 500;
+        }
+
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; }
+        .verify-tag { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: #22c55e; background: rgba(34, 197, 94, 0.1); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+        .btn-download {
+            margin-top: 15px; width: 100%; background: #6366f1; color: white; border: none;
+            padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        .btn-download:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; }
+
+        .bio-header-wrapper { display: flex; justify-content: space-between; align-items: center; }
+        .char-counter { font-size: 0.75rem; color: #64748b; font-weight: 600; }
+        .char-counter.danger { color: #ef4444; }
+        .bio-error { border-color: #ef4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.3) !important; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="form-section">
+            <h2><i class="fa-solid fa-layer-group"></i> Select Template</h2>
+            <div class="input-group">
+                <div class="template-picker">
+                    <div class="template-btn active" data-template="tmpl-prof">Classic Professional</div>
+                    <div class="template-btn" data-template="tmpl-cyber">Neon Cyberpunk</div>
+                    <div class="template-btn" data-template="tmpl-minimal">Minimalist Light</div>
+                </div>
+            </div>
+
+            <h2><i class="fa-solid fa-address-card"></i> Personal Info</h2>
+            
+            <div class="image-ai-block">
+                <input type="file" id="imageInput" class="file-input" accept="image/*">
+                <label for="imageInput" class="image-upload-btn"><i class="fa-solid fa-camera"></i> Photo</label>
+                <div class="input-group" style="flex: 1;">
+                    <label>Full Name</label>
+                    <input type="text" id="nameInput" value="Faiz Mehmood">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Job Designation</label>
+                    <input type="text" id="roleInput" value="Sales Specialist">
+                </div>
+                <div class="input-group">
+                    <label>Country</label>
+                    <input type="text" id="countryInput" value="Pakistan">
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="input-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="dobInput" value="2000-01-01">
+                </div>
+                <div class="input-group">
+                    <label>Phone Number</label>
+                    <input type="text" id="phoneInput" value="+92 300 1234567">
+                </div>
+                <div class="input-group">
+                    <label>National ID / CNIC</label>
+                    <input type="text" id="idCardInput" value="35201-XXXXXXX-X">
+                </div>
+            </div>
+
+            <h2><i class="fa-solid fa-briefcase"></i> Experience Timeline</h2>
+            
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Company Name</label>
+                    <input type="text" id="companyInput" value="Tech Growth Ecosystems">
+                </div>
+                <div class="input-group">
+                    <label>Experience Level</label>
+                    <select id="expLevelInput">
+                        <option value="Junior Level">Junior Level</option>
+                        <option value="Mid-Senior Level" selected>Mid-Senior Level</option>
+                        <option value="Senior Executive">Senior Executive</option>
+                        <option value="Lead Consultant">Lead Consultant</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="input-group">
+                    <label>Joining Date</label>
+                    <input type="date" id="joinDateInput" value="2024-03-15">
+                </div>
+                <div class="input-group">
+                    <label>Ending Date</label>
+                    <input type="date" id="endDateInput" value="">
+                    <div class="check-wrap">
+                        <input type="checkbox" id="presentCheck" checked>
+                        <span>Currently Working Here</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2><i class="fa-solid fa-brain"></i> Bio & Core Skills</h2>
+            <div class="input-group">
+                <div class="bio-header-wrapper">
+                    <label>Profile Bio</label>
+                    <span class="char-counter" id="charCounter">0 / 150</span>
+                </div>
+                <textarea id="bioInput" rows="3">Passionate sales expert skilled in client acquisition, relationship building, and driving conversion metrics.</textarea>
+                <button class="ai-gen-btn" id="aiGenBtn" style="margin-top: 5px; justify-content: center;"><i class="fa-solid fa-magic"></i> AI Improve Bio</button>
+            </div>
+
+            <div class="input-group">
+                <label>Skills (with commas ",")</label>
+                <input type="text" id="skillsInput" value="Python, B2B Sales, Negotiation, Lead Generation" autocomplete="off">
+                <div class="suggestions-box" id="suggestionsBox"></div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2><i class="fa-solid fa-id-badge"></i> Enterprise Output</h2>
+            
+            <div class="profile-card tmpl-prof" id="captureCard">
+                <div class="card-header">
+                    <img src="https://via.placeholder.com/150" alt="Avatar" class="card-avatar" id="cardAvatar">
+                    <div>
+                        <div class="card-name" id="cardName">Faiz Mehmood</div>
+                        <div class="card-role" id="cardRole">Sales Specialist</div>
+                    </div>
+                </div>
+
+                <div class="card-meta-grid">
+                    <div class="meta-item"><i class="fa-solid fa-earth-americas"></i> <span id="cardCountry">Pakistan</span></div>
+                    <div class="meta-item"><i class="fa-solid fa-cake-candles"></i> <span id="cardDob">Jan 01, 2000</span></div>
+                    <div class="meta-item"><i class="fa-solid fa-phone"></i> <span id="cardPhone">+92 300 1234567</span></div>
+                    <div class="meta-item"><i class="fa-solid fa-id-card"></i> <span id="cardIdCard">35201-XXXXXXX-X</span></div>
+                </div>
+                
+                <div class="card-bio" id="cardBio">Passionate sales expert skilled in client acquisition, relationship building, and driving conversion metrics.</div>
+                
+                <div class="card-timeline">
+                    <div class="timeline-comp" id="cardCompany">Tech Growth Ecosystems</div>
+                    <div class="timeline-exp-level" id="cardExpLevel">Mid-Senior Level</div>
+                    <div class="timeline-dates" id="cardDates">Mar 2024 - Present</div>
+                    <div class="timeline-duration" id="cardDuration"></div>
+                </div>
+
+                <div class="skills-container" id="skillsContainer"></div>
+                
+                <div class="card-footer">
+                    <div style="font-size: 0.75rem; font-weight: 600;">EMP STATUS: ACTIVE</div>
+                    <div class="verify-tag"><i class="fa-solid fa-shield-halved"></i> Corporate Verified</div>
+                </div>
+            </div>
+
+            <button class="btn-download" id="downloadBtn"><i class="fa-solid fa-download"></i> Download HQ Profile Image</button>
+        </div>
+    </div>
+
+    <script>
+        const skillsDatabase = [
+            "Python", "JavaScript", "C++", "Java", "HTML5", "CSS3", "React.js", "Node.js",
+            "B2B Sales", "Negotiation", "Lead Generation", "Client Acquisition", "Closing Deals",
+            "Digital Marketing", "SEO", "SQL", "Git", "CRM Systems", "Cold Calling"
+        ];
+
+        // Elements
+        const nameInput = document.getElementById('nameInput');
+        const roleInput = document.getElementById('roleInput');
+        const countryInput = document.getElementById('countryInput');
+        const dobInput = document.getElementById('dobInput');
+        const phoneInput = document.getElementById('phoneInput');
+        const idCardInput = document.getElementById('idCardInput');
+        const companyInput = document.getElementById('companyInput');
+        const expLevelInput = document.getElementById('expLevelInput');
+        const joinDateInput = document.getElementById('joinDateInput');
+        const endDateInput = document.getElementById('endDateInput');
+        const presentCheck = document.getElementById('presentCheck');
+        const bioInput = document.getElementById('bioInput');
+        const skillsInput = document.getElementById('skillsInput');
+        const imageInput = document.getElementById('imageInput');
+        
+        const aiGenBtn = document.getElementById('aiGenBtn');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const captureCard = document.getElementById('captureCard');
+
+        const cardName = document.getElementById('cardName');
+        const cardRole = document.getElementById('cardRole');
+        const cardCountry = document.getElementById('cardCountry');
+        const cardDob = document.getElementById('cardDob');
+        const cardPhone = document.getElementById('cardPhone');
+        const cardIdCard = document.getElementById('cardIdCard');
+        const cardBio = document.getElementById('cardBio');
+        const cardCompany = document.getElementById('cardCompany');
+        const cardExpLevel = document.getElementById('cardExpLevel');
+        const cardDates = document.getElementById('cardDates');
+        const cardDuration = document.getElementById('cardDuration');
+        const skillsContainer = document.getElementById('skillsContainer');
+        const cardAvatar = document.getElementById('cardAvatar');
+
+        // --- NEW TEMPLATE SWITCHER LOGIC ---
+        const templateBtns = document.querySelectorAll('.template-btn');
+        templateBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active classes
+                templateBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Swap CSS classes on the profile card element
+                captureCard.className = "profile-card " + btn.getAttribute('data-template');
+            });
+        });
+
+        function formatDate(dateString) {
+            if(!dateString) return "";
+            return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        function formatMonthYear(dateString) {
+            if(!dateString) return "";
+            return new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+        }
+
+        function calculateDuration(startDateStr, endDateStr, isPresent) {
+            if (!startDateStr) return "";
+            const start = new Date(startDateStr);
+            const end = isPresent ? new Date() : (endDateStr ? new Date(endDateStr) : new Date());
+            let totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+            if (totalMonths <= 0) return "Less than a month";
+            const years = Math.floor(totalMonths / 12);
+            const months = totalMonths % 12;
+            let durationString = "";
+            if (years > 0) durationString += `${years} Year${years > 1 ? 's' : ''} `;
+            if (months > 0) durationString += `${months} Month${months > 1 ? 's' : ''}`;
+            return durationString.trim();
+        }
+
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) { cardAvatar.src = e.target.result; }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        presentCheck.addEventListener('change', function() {
+            endDateInput.disabled = this.checked;
+            if(this.checked) endDateInput.value = "";
+            updateAdvancedCard();
+        });
+
+        function updateAdvancedCard() {
+            cardName.innerText = nameInput.value.trim() || "Your Name";
+            cardRole.innerText = roleInput.value.trim() || "Designation";
+            cardCountry.innerText = countryInput.value.trim() || "Country";
+            cardDob.innerText = dobInput.value ? formatDate(dobInput.value) : "DOB";
+            cardPhone.innerText = phoneInput.value.trim() || "Phone Number";
+            cardIdCard.innerText = idCardInput.value.trim() || "Identity ID";
+            cardBio.innerText = bioInput.value.trim() || "Bio description...";
+            cardCompany.innerText = companyInput.value.trim() || "Company Name";
+            cardExpLevel.innerText = expLevelInput.value;
+
+            let start = joinDateInput.value ? formatMonthYear(joinDateInput.value) : "Start";
+            let end = presentCheck.checked ? "Present" : (endDateInput.value ? formatMonthYear(endDateInput.value) : "End");
+            cardDates.innerText = `${start} - ${end}`;
+            cardDuration.innerText = joinDateInput.value ? `Duration: ${calculateDuration(joinDateInput.value, endDateInput.value, presentCheck.checked)}` : "";
+
+            const len = bioInput.value.length;
+            document.getElementById('charCounter').innerText = `${len} / 150`;
+            if(len > 150) {
+                bioInput.classList.add('bio-error');
+                downloadBtn.disabled = true;
+            } else {
+                bioInput.classList.remove('bio-error');
+                downloadBtn.disabled = false;
+            }
+
+            skillsContainer.innerHTML = "";
+            const skillsArray = skillsInput.value.split(",");
+            skillsArray.forEach(skill => {
+                if(skill.trim() !== "") {
+                    const span = document.createElement('span');
+                    span.className = 'skill-tag';
+                    span.innerText = skill.trim();
+                    skillsContainer.appendChild(span);
+                }
+            });
+        }
+
+        [nameInput, roleInput, countryInput, dobInput, phoneInput, idCardInput, companyInput, expLevelInput, joinDateInput, endDateInput, bioInput, skillsInput].forEach(item => {
+            item.addEventListener('input', updateAdvancedCard);
+            item.addEventListener('change', updateAdvancedCard);
+        });
+
+        skillsInput.addEventListener('input', () => {
+            const parts = skillsInput.value.split(",");
+            const currentSearch = parts[parts.length - 1].trim().toLowerCase();
+            suggestionsBox.innerHTML = "";
+
+            if (!currentSearch) { suggestionsBox.style.display = "none"; return; }
+
+            const matches = skillsDatabase.filter(s => s.toLowerCase().startsWith(currentSearch) && !skillsInput.value.toLowerCase().includes(s.toLowerCase()));
+            if(matches.length > 0) {
+                suggestionsBox.style.display = "block";
+                matches.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerText = m;
+                    div.addEventListener('click', () => {
+                        parts[parts.length - 1] = " " + m;
+                        skillsInput.value = parts.join(",") + ", ";
+                        suggestionsBox.style.display = "none";
+                        skillsInput.focus();
+                        updateAdvancedCard();
+                    });
+                    suggestionsBox.appendChild(div);
+                });
+            } else { suggestionsBox.style.display = "none"; }
+        });
+
+        aiGenBtn.addEventListener('click', () => {
+            aiGenBtn.innerText = "Processing...";
+            setTimeout(() => {
+                bioInput.value = `Accomplished ${roleInput.value} working at ${companyInput.value}. Proven tracking records of maintaining strategic growth and structural pipelines.`;
+                updateAdvancedCard();
+                aiGenBtn.innerText = "AI Improve Bio";
+            }, 800);
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const card = document.getElementById('captureCard');
+            html2canvas(card, { scale: 2.5, backgroundColor: null }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `${cardName.innerText.replace(/\s+/g, '_')}_Identity_Card.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+
+        updateAdvancedCard();
+    </script>
+</body>
+</html>
